@@ -4,7 +4,8 @@
 
 | | |
 |---|---|
-| **Repository** | `Sylvester-Stanley/ETLWeather` |
+| **Prepared by** | SYLVESTER STANLEY |
+| **UID** | 24BDA70327 |
 | **Pipeline (DAG) ID** | `weather_etl_pipeline` |
 | **Orchestrator** | Apache Airflow 2.10.2 via Astro Runtime 12.1.1 |
 | **Source system** | Open-Meteo Forecast API (public REST, no API key) |
@@ -375,7 +376,7 @@ Both themes are addressable without redesign. The [Implementation Guide](IMPLEME
 
 ---
 
-## Appendix A — Repository structure
+## Appendix A — Project structure
 
 ```
 ETLWeather/

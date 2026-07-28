@@ -57,7 +57,7 @@ winget install -e --id Astronomer.Astro
 ## 1. Open the project in VS Code
 
 ```bash
-git clone https://github.com/Sylvester-Stanley/ETLWeather.git
+git clone <your-repository-url> ETLWeather
 cd ETLWeather
 code .
 ```

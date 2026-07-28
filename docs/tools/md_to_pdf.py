@@ -40,6 +40,9 @@ TH_BG = colors.HexColor("#eef2f7")
 QUOTE_BG = colors.HexColor("#fffbeb")
 QUOTE_BAR = colors.HexColor("#f59e0b")
 
+AUTHOR = "SYLVESTER STANLEY"
+UID = "24BDA70327"
+
 PAGE_W, PAGE_H = A4
 MARGIN = 18 * mm
 
@@ -378,13 +381,20 @@ def parse_markdown(md: str, base_dir: str, styles, avail: float, first_doc: bool
 
 
 def cover(styles, title, subtitle, meta_rows, avail):
+    byline = ParagraphStyle("byline", parent=styles["body"], fontName="Helvetica-Bold",
+                            fontSize=14, leading=19, textColor=ACCENT, spaceAfter=2)
+    byline_sub = ParagraphStyle("bylinesub", parent=styles["body"], fontSize=11,
+                                leading=15, textColor=INK, spaceAfter=16)
     flows = [
-        Spacer(1, 46 * mm),
+        Spacer(1, 40 * mm),
         Paragraph(title, styles["title"]),
         HRFlowable(width="100%", thickness=1.6, color=ACCENT),
         Spacer(1, 10),
         Paragraph(subtitle, styles["subtitle"]),
-        Spacer(1, 10),
+        Spacer(1, 6),
+        Paragraph(f"Prepared by {AUTHOR}", byline),
+        Paragraph(f"UID {UID}", byline_sub),
+        Spacer(1, 4),
     ]
     data = [[Paragraph(f"<b>{k}</b>", styles["cell"]), Paragraph(v, styles["cell"])]
             for k, v in meta_rows]
@@ -400,13 +410,17 @@ def cover(styles, title, subtitle, meta_rows, avail):
     return flows
 
 
-def make_footer(title):
+def make_footer(title, author=None, uid=None):
+    """Footer: document title left, author/UID centred, page number right."""
     def footer(canvas, doc):
         canvas.saveState()
         canvas.setFont("Helvetica", 7.6)
         canvas.setFillColor(MUTED)
         if doc.page > 1:
             canvas.drawString(MARGIN, 11 * mm, title)
+            if author:
+                stamp = f"{author}  ·  UID {uid}" if uid else author
+                canvas.drawCentredString(PAGE_W / 2, 11 * mm, stamp)
             canvas.drawRightString(PAGE_W - MARGIN, 11 * mm, f"Page {doc.page}")
             canvas.setStrokeColor(RULE)
             canvas.setLineWidth(0.4)
@@ -429,13 +443,14 @@ def main():
         leftMargin=MARGIN, rightMargin=MARGIN,
         topMargin=MARGIN, bottomMargin=MARGIN + 6 * mm,
         title="ETLWeather — Case Study & Implementation Guide",
-        author="ETLWeather analysis",
+        author=f"{AUTHOR} (UID {UID})",
     )
     frame = Frame(MARGIN, MARGIN + 6 * mm, avail,
                   PAGE_H - 2 * MARGIN - 6 * mm, id="body")
     doc.addPageTemplates([
         PageTemplate(id="main", frames=[frame],
-                     onPage=make_footer("ETLWeather — Case Study & Implementation Guide"))
+                     onPage=make_footer("ETLWeather",
+                                        author=AUTHOR, uid=UID))
     ])
 
     story = cover(
@@ -444,7 +459,6 @@ def main():
         "Case Study &amp; Implementation Guide — an Apache Airflow ETL pipeline "
         "from the Open-Meteo API to PostgreSQL",
         [
-            ("Repository", "Sylvester-Stanley/ETLWeather"),
             ("Pipeline", "weather_etl_pipeline"),
             ("Orchestrator", "Apache Airflow 2.10.2 (Astro Runtime 12.1.1)"),
             ("Source", "Open-Meteo Forecast API"),

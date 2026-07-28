@@ -1,0 +1,33 @@
+# --- Secrets -----------------------------------------------------------------
+# .env holds AIRFLOW_CONN_* values (DB passwords). Never commit it.
+.env
+.env.local
+
+# --- Astro CLI ---------------------------------------------------------------
+.astro/
+airflow_settings.local.yaml
+
+# --- Airflow local artefacts -------------------------------------------------
+# Created when Airflow is run outside containers (e.g. the standalone runner).
+airflow.db
+airflow.cfg
+webserver_config.py
+airflow-webserver.pid
+standalone_admin_password.txt
+logs/
+
+# --- Python ------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# --- Editors / OS ------------------------------------------------------------
+.idea/
+*.swp
+.DS_Store
+Thumbs.db

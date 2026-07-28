@@ -1,0 +1,50 @@
+{
+  // Point VS Code at the local virtualenv created in the implementation guide
+  // (Step 0). This gives IntelliSense and go-to-definition for `airflow`,
+  // `HttpHook` and `PostgresHook` without needing to attach to a container.
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "python.terminal.activateEnvironment": true,
+
+  // Analyse DAGs and helper scripts.
+  "python.analysis.extraPaths": ["${workspaceFolder}/dags", "${workspaceFolder}/include"],
+  "python.analysis.autoImportCompletions": true,
+
+  // pytest drives the DAG integrity tests in tests/.
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": ["tests"],
+
+  // AIRFLOW_HOME must be the project root so DagBag resolves `dags/` and the
+  // repo's own tests report paths relative to the project.
+  "terminal.integrated.env.linux": { "AIRFLOW_HOME": "${workspaceFolder}" },
+  "terminal.integrated.env.osx": { "AIRFLOW_HOME": "${workspaceFolder}" },
+  "terminal.integrated.env.windows": { "AIRFLOW_HOME": "${workspaceFolder}" },
+
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true
+  },
+
+  "[python]": {
+    "editor.rulers": [100],
+    "editor.formatOnSave": false
+  },
+
+  // Treat the Astro override as Compose YAML for schema validation.
+  "files.associations": {
+    "docker-compose.override.yml": "dockercompose",
+    "airflow_settings.yaml": "yaml"
+  },
+
+  "sqltools.connections": [
+    {
+      "name": "ETLWeather warehouse (local)",
+      "driver": "PostgreSQL",
+      "server": "localhost",
+      "port": 5434,
+      "database": "weather",
+      "username": "postgres",
+      "password": "postgres"
+    }
+  ]
+}

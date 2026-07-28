@@ -1,0 +1,51 @@
+# Astro CLI Docker Compose override.
+#
+# `astro dev start` merges this file into the Astro CLI's generated Compose
+# project. It adds ONE extra service: the target warehouse that the DAG writes
+# to (`weather_db`), and attaches it to the same `airflow` bridge network the
+# Airflow containers use.
+#
+# Why this file exists
+# --------------------
+# The repository root also ships a standalone `docker-compose.yml` with a
+# Postgres service. That file is a *separate* Compose project: containers it
+# starts are NOT on the Airflow network, so the scheduler cannot resolve them by
+# service name. Using this override instead means the DAG can reach the
+# warehouse at the stable hostname `weather_db`.
+#
+# IMPORTANT: this Postgres is the TARGET warehouse. It is deliberately NOT the
+# Airflow metadata database. Astro runs its own `postgres` service for metadata;
+# keep the two separate so a warehouse reset never destroys DAG history.
+#
+# Host port 5434 is used to avoid clashing with:
+#   - 5432, commonly taken by a locally installed Postgres
+#   - the Astro metadata DB port (5432 by default, configurable via
+#     `astro config set postgres.port <port>`)
+
+services:
+  weather_db:
+    image: postgres:13
+    container_name: weather_db
+    restart: unless-stopped
+    networks:
+      - airflow
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: weather
+    ports:
+      # host:container — connect from your laptop / VS Code on localhost:5434
+      - "5434:5432"
+    volumes:
+      - weather_db_data:/var/lib/postgresql/data
+      # Runs once, only when the data volume is empty, to pre-create the table.
+      - ./include/sql/init_weather_db.sql:/docker-entrypoint-initdb.d/init_weather_db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d weather"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  weather_db_data:
+    driver: local

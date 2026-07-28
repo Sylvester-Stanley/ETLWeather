@@ -1,48 +1,99 @@
-Overview
-========
+# ETLWeather
 
-Welcome to Astronomer! This project was generated after you ran 'astro dev init' using the Astronomer CLI. This readme describes the contents of the project, as well as how to run Apache Airflow on your local machine.
+An Apache Airflow ETL pipeline that ingests current weather observations from the **Open-Meteo API** into **PostgreSQL** on a daily schedule.
 
-Project Contents
-================
+Built on Astro Runtime 12.1.1 (Apache Airflow 2.10.2) using the TaskFlow API.
 
-Your Astro project contains the following files and folders:
+```
+Open-Meteo API  ──►  extract  ──►  transform  ──►  load  ──►  PostgreSQL
+   (JSON/HTTPS)      HttpHook     pure Python    PostgresHook   weather_data
+```
 
-- dags: This folder contains the Python files for your Airflow DAGs. By default, this directory includes one example DAG:
-    - `example_astronauts`: This DAG shows a simple ETL pipeline example that queries the list of astronauts currently in space from the Open Notify API and prints a statement for each astronaut. The DAG uses the TaskFlow API to define tasks in Python, and dynamic task mapping to dynamically print a statement for each astronaut. For more on how this DAG works, see our [Getting started tutorial](https://www.astronomer.io/docs/learn/get-started-with-airflow).
-- Dockerfile: This file contains a versioned Astro Runtime Docker image that provides a differentiated Airflow experience. If you want to execute other commands or overrides at runtime, specify them here.
-- include: This folder contains any additional files that you want to include as part of your project. It is empty by default.
-- packages.txt: Install OS-level packages needed for your project by adding them to this file. It is empty by default.
-- requirements.txt: Install Python packages needed for your project by adding them to this file. It is empty by default.
-- plugins: Add custom or community plugins for your project to this file. It is empty by default.
-- airflow_settings.yaml: Use this local-only file to specify Airflow Connections, Variables, and Pools instead of entering them in the Airflow UI as you develop DAGs in this project.
+---
 
-Deploy Your Project Locally
-===========================
+## Documentation
 
-1. Start Airflow on your local machine by running 'astro dev start'.
+| Document | What it covers |
+|---|---|
+| **[Case Study](docs/CASE_STUDY.md)** | Architecture, task-by-task walkthrough, verified findings and recommendations |
+| **[Implementation Guide](docs/IMPLEMENTATION_GUIDE.md)** | Step-by-step VS Code runbook: setup, run, verify, troubleshoot |
+| **[Combined PDF](docs/ETLWeather_Case_Study.pdf)** | Both documents as a single 22-page report |
 
-This command will spin up 4 Docker containers on your machine, each for a different Airflow component:
+---
 
-- Postgres: Airflow's Metadata Database
-- Webserver: The Airflow component responsible for rendering the Airflow UI
-- Scheduler: The Airflow component responsible for monitoring and triggering tasks
-- Triggerer: The Airflow component responsible for triggering deferred tasks
+## Quick start
 
-2. Verify that all 4 Docker containers were created by running 'docker ps'.
+Requires Docker Desktop and the [Astro CLI](https://www.astronomer.io/docs/astro/cli/install-cli).
 
-Note: Running 'astro dev start' will start your project with the Airflow Webserver exposed at port 8080 and Postgres exposed at port 5432. If you already have either of those ports allocated, you can either [stop your existing Docker containers or change the port](https://www.astronomer.io/docs/astro/cli/troubleshoot-locally#ports-are-not-available-for-my-local-airflow-webserver).
+```bash
+git clone https://github.com/Sylvester-Stanley/ETLWeather.git
+cd ETLWeather
 
-3. Access the Airflow UI for your local Airflow project. To do so, go to http://localhost:8080/ and log in with 'admin' for both your Username and Password.
+cp .env.example .env      # defines the two Airflow connections — do not skip
+astro dev start           # starts Airflow + the weather_db warehouse
+```
 
-You should also be able to access your Postgres Database at 'localhost:5432/postgres'.
+Open <http://localhost:8080> (`admin` / `admin`), enable **`weather_etl_pipeline`**, and trigger it.
 
-Deploy Your Project to Astronomer
-=================================
+Verify the rows landed:
 
-If you have an Astronomer account, pushing code to a Deployment on Astronomer is simple. For deploying instructions, refer to Astronomer documentation: https://www.astronomer.io/docs/astro/deploy-code/
+```bash
+docker exec -it weather_db psql -U postgres -d weather \
+  -c "SELECT * FROM weather_data ORDER BY timestamp DESC LIMIT 5;"
+```
 
-Contact
-=======
+> **Why `.env` matters.** Airflow ships a built-in connection named `postgres_default` that points at its own metadata database. Without the override in `.env`, the DAG appears to succeed but writes `weather_data` into Airflow's internal database. See [Case Study §6.3](docs/CASE_STUDY.md#63-postgres_default-collides-with-an-airflow-built-in--high-severity-silent).
 
-The Astronomer CLI is maintained with love by the Astronomer team. To report a bug or suggest a change, reach out to our support.
+---
+
+## Testing
+
+```bash
+AIRFLOW_HOME=$(pwd) pytest tests/ -v
+```
+
+`AIRFLOW_HOME` must point at the project root, or `DagBag` finds no DAGs and every test silently skips.
+
+- `tests/dags/test_weather_etl.py` — 9 unit tests covering all three tasks. No Docker or network needed; runs in about a second.
+- `tests/dags/test_dag_example.py` — Astronomer's stock integrity checks. **Two currently fail** on this DAG (no tags, no retries) — a real finding, documented in [Case Study §6.1](docs/CASE_STUDY.md#61-no-retry-policy--high-severity).
+
+A Docker-free end-to-end check against the live API:
+
+```bash
+python include/scripts/smoke_test_pipeline.py          # extract + transform
+python include/scripts/smoke_test_pipeline.py --load   # also insert into Postgres
+```
+
+---
+
+## Project layout
+
+```
+dags/etlweather.py                     the weather_etl_pipeline DAG
+docker-compose.override.yml            warehouse attached to the Airflow network
+.env.example                           connection definitions template
+include/sql/init_weather_db.sql        warehouse bootstrap schema
+include/sql/verify_weather_data.sql    post-run verification queries
+include/scripts/smoke_test_pipeline.py Docker-free pipeline check
+tests/dags/test_weather_etl.py         unit tests for this DAG
+docs/                                  case study, guide, diagrams, PDF
+```
+
+## Regenerating the docs
+
+```bash
+pip install reportlab pillow
+python docs/tools/make_diagrams.py     # rebuild the PNG diagrams
+python docs/tools/md_to_pdf.py docs/CASE_STUDY.md docs/IMPLEMENTATION_GUIDE.md \
+    -o docs/ETLWeather_Case_Study.pdf
+```
+
+---
+
+## Notes on the target database
+
+The repository's original `docker-compose.yml` starts Postgres as a **separate Compose project**, so Airflow cannot reach it by service name. `docker-compose.override.yml` supersedes it by attaching the warehouse (`weather_db`, host port **5434**) to Astro's `airflow` network. Details in [Case Study §6.4](docs/CASE_STUDY.md#64-the-bundled-docker-composeyml-does-not-serve-this-dag--medium-severity).
+
+## License
+
+See [LICENSE](LICENSE).

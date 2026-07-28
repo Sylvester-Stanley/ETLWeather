@@ -1,4 +1,4 @@
-"""Generate architecture diagrams (PNG) for the ETLWeather case study.
+"""Generate architecture diagrams (PNG) for the weather ETL case study.
 
 Pure-Pillow renderer so it works without Graphviz/Mermaid/network access.
 
@@ -99,7 +99,7 @@ def diagram_architecture():
     f_small = font(F_REG, 10)
     f_mono = font(F_MONO, 9)
 
-    text_at(d, (30, 22), "ETLWeather — System Architecture", f_title)
+    text_at(d, (30, 22), "Weather ETL Pipeline — System Architecture", f_title)
     text_at(d, (30, 47), "Astro Runtime 12.1.1 (Airflow 2.10.2) orchestrating a daily Open-Meteo -> PostgreSQL ETL",
             f_sub, MUTED)
 

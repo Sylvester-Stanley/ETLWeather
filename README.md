@@ -17,7 +17,7 @@ Open-Meteo API  ──►  extract  ──►  transform  ──►  load  ─�
 |---|---|
 | **[Case Study](docs/CASE_STUDY.md)** | Architecture, task-by-task walkthrough, verified findings and recommendations |
 | **[Implementation Guide](docs/IMPLEMENTATION_GUIDE.md)** | Step-by-step VS Code runbook: setup, run, verify, troubleshoot |
-| **[Combined PDF](docs/ETLWeather_Case_Study.pdf)** | Both documents as a single 22-page report |
+| **[Combined PDF](docs/Weather_ETL_Pipeline_Case_Study.pdf)** | Both documents as a single 22-page report |
 
 ---
 
@@ -85,7 +85,7 @@ docs/                                  case study, guide, diagrams, PDF
 pip install reportlab pillow
 python docs/tools/make_diagrams.py     # rebuild the PNG diagrams
 python docs/tools/md_to_pdf.py docs/CASE_STUDY.md docs/IMPLEMENTATION_GUIDE.md \
-    -o docs/ETLWeather_Case_Study.pdf
+    -o docs/Weather_ETL_Pipeline_Case_Study.pdf
 ```
 
 ---

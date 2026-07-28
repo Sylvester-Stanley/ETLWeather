@@ -1,4 +1,4 @@
-"""Render the ETLWeather Markdown docs to a single styled PDF.
+"""Render the case-study Markdown docs to a single styled PDF.
 
 Uses ReportLab's Platypus so it works without Pango/Cairo/Chromium, which are
 unavailable in many minimal environments.
@@ -10,7 +10,7 @@ Supported Markdown subset (sufficient for these documents):
 
 Usage:
     python docs/tools/md_to_pdf.py docs/CASE_STUDY.md docs/IMPLEMENTATION_GUIDE.md \
-        -o docs/ETLWeather_Case_Study.pdf
+        -o docs/Weather_ETL_Pipeline_Case_Study.pdf
 """
 
 from __future__ import annotations
@@ -442,20 +442,20 @@ def main():
         args.output, pagesize=A4,
         leftMargin=MARGIN, rightMargin=MARGIN,
         topMargin=MARGIN, bottomMargin=MARGIN + 6 * mm,
-        title="ETLWeather — Case Study & Implementation Guide",
+        title="Weather ETL Pipeline — Case Study & Implementation Guide",
         author=f"{AUTHOR} (UID {UID})",
     )
     frame = Frame(MARGIN, MARGIN + 6 * mm, avail,
                   PAGE_H - 2 * MARGIN - 6 * mm, id="body")
     doc.addPageTemplates([
         PageTemplate(id="main", frames=[frame],
-                     onPage=make_footer("ETLWeather",
+                     onPage=make_footer("Weather ETL Pipeline",
                                         author=AUTHOR, uid=UID))
     ])
 
     story = cover(
         styles,
-        "ETLWeather",
+        "Weather ETL Pipeline",
         "Case Study &amp; Implementation Guide — an Apache Airflow ETL pipeline "
         "from the Open-Meteo API to PostgreSQL",
         [

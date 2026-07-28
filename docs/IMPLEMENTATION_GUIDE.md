@@ -1,4 +1,4 @@
-# Implementation Guide — Running ETLWeather in VS Code
+# Implementation Guide — Running the Weather ETL Pipeline in VS Code
 
 A step-by-step runbook to get `weather_etl_pipeline` running on your machine, verify that data actually lands in PostgreSQL, and diagnose it when it does not.
 
@@ -57,8 +57,8 @@ winget install -e --id Astronomer.Astro
 ## 1. Open the project in VS Code
 
 ```bash
-git clone <your-repository-url> ETLWeather
-cd ETLWeather
+git clone <your-repository-url> weather-etl
+cd weather-etl
 code .
 ```
 
@@ -248,7 +248,7 @@ docker exec -i weather_db psql -U postgres -d weather < include/sql/verify_weath
 
 ### Querying from VS Code
 
-With the SQLTools extension installed, open the **SQLTools** sidebar icon → **ETLWeather warehouse (local)** → **Connect**. The connection is pre-configured (`localhost:5434`, database `weather`, user/password `postgres`). You can then open `include/sql/verify_weather_data.sql` and run statements with **Ctrl/Cmd+E, Ctrl/Cmd+E**.
+With the SQLTools extension installed, open the **SQLTools** sidebar icon → **Weather warehouse (local)** → **Connect**. The connection is pre-configured (`localhost:5434`, database `weather`, user/password `postgres`). You can then open `include/sql/verify_weather_data.sql` and run statements with **Ctrl/Cmd+E, Ctrl/Cmd+E**.
 
 ### Proving the whole path independently
 

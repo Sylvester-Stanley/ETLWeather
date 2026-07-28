@@ -1,4 +1,4 @@
-# Case Study — ETLWeather
+# Case Study — Weather ETL Pipeline
 
 **An Apache Airflow ETL pipeline that ingests current weather observations from the Open-Meteo API into PostgreSQL.**
 
@@ -18,7 +18,7 @@
 
 ## 1. Executive summary
 
-ETLWeather is a compact, production-shaped reference implementation of the most common pattern in data engineering: pull data from a third-party HTTP API on a schedule, reshape it, and land it in a relational database. It is built on the Astronomer distribution of Apache Airflow and uses Airflow's TaskFlow API to express the pipeline as three decorated Python functions.
+This project is a compact, production-shaped reference implementation of the most common pattern in data engineering: pull data from a third-party HTTP API on a schedule, reshape it, and land it in a relational database. It is built on the Astronomer distribution of Apache Airflow and uses Airflow's TaskFlow API to express the pipeline as three decorated Python functions.
 
 The project's real value is pedagogical density. In roughly 90 lines of DAG code it demonstrates connection abstraction via Hooks, implicit inter-task data passing via XCom, declarative scheduling, and idempotent DDL — the same building blocks used in pipelines that are thousands of lines long.
 
@@ -368,7 +368,7 @@ The gaps identified in §6 are, almost without exception, the *next* lesson rath
 
 ## 8. Conclusion
 
-ETLWeather is a well-constructed teaching implementation of scheduled API-to-warehouse ETL. Its structure is sound, its use of Hooks and the TaskFlow API is idiomatic, and it runs correctly once its environment is configured properly.
+The pipeline is a well-constructed teaching implementation of scheduled API-to-warehouse ETL. Its structure is sound, its use of Hooks and the TaskFlow API is idiomatic, and it runs correctly once its environment is configured properly.
 
 Its production gaps cluster into two themes. **Reliability** — no retries and no idempotency — means the pipeline works when everything works, which is not the condition pipelines are judged on. **Environment correctness** — the `postgres_default` collision and the unreachable Compose service — means the most likely first-run outcome is either a connection error or, worse, data silently written to the wrong database.
 
@@ -379,7 +379,7 @@ Both themes are addressable without redesign. The [Implementation Guide](IMPLEME
 ## Appendix A — Project structure
 
 ```
-ETLWeather/
+project-root/
 ├── dags/
 │   ├── etlweather.py              # the weather_etl_pipeline DAG (analysed here)
 │   └── exampledag.py              # Astronomer's stock astronaut example

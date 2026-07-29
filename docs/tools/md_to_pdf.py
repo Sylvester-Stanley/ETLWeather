@@ -438,11 +438,27 @@ def main():
     styles = build_styles()
     avail = PAGE_W - 2 * MARGIN
 
+    # The cover adapts to what is actually being rendered, so a standalone
+    # case study is not mislabelled as containing the implementation guide.
+    names = [os.path.basename(p).upper() for p in args.inputs]
+    has_case = any("CASE_STUDY" in n for n in names)
+    has_guide = any("IMPLEMENTATION" in n for n in names)
+    if has_case and has_guide:
+        doc_title = "Case Study & Implementation Guide"
+        contents = "Part 1 — Case Study &nbsp;·&nbsp; Part 2 — Implementation Guide"
+    elif has_guide:
+        doc_title = "Implementation Guide"
+        contents = "Setup, execution, verification and troubleshooting"
+    else:
+        doc_title = "Case Study"
+        contents = ("Architecture &nbsp;·&nbsp; Pipeline walkthrough &nbsp;·&nbsp; "
+                    "Verification &nbsp;·&nbsp; Findings")
+
     doc = BaseDocTemplate(
         args.output, pagesize=A4,
         leftMargin=MARGIN, rightMargin=MARGIN,
         topMargin=MARGIN, bottomMargin=MARGIN + 6 * mm,
-        title="Weather ETL Pipeline — Case Study & Implementation Guide",
+        title=f"Weather ETL Pipeline — {doc_title}",
         author=f"{AUTHOR} (UID {UID})",
     )
     frame = Frame(MARGIN, MARGIN + 6 * mm, avail,
@@ -456,7 +472,7 @@ def main():
     story = cover(
         styles,
         "Weather ETL Pipeline",
-        "Case Study &amp; Implementation Guide — an Apache Airflow ETL pipeline "
+        f"{doc_title.replace('&', '&amp;')} — an Apache Airflow ETL pipeline "
         "from the Open-Meteo API to PostgreSQL",
         [
             ("Pipeline", "weather_etl_pipeline"),
@@ -464,8 +480,8 @@ def main():
             ("Source", "Open-Meteo Forecast API"),
             ("Target", "PostgreSQL 13 — weather_data"),
             ("Schedule", "@daily, catchup disabled"),
-            ("Contents", "Part 1 — Case Study &nbsp;·&nbsp; Part 2 — Implementation Guide"),
-            ("Date", "28 July 2026"),
+            ("Contents", contents),
+            ("Date", "29 July 2026"),
         ],
         avail,
     )

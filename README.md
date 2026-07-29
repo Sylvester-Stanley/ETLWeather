@@ -17,7 +17,8 @@ Open-Meteo API  ──►  extract  ──►  transform  ──►  load  ─�
 |---|---|
 | **[Case Study](docs/CASE_STUDY.md)** | Architecture, task-by-task walkthrough, verified findings and recommendations |
 | **[Implementation Guide](docs/IMPLEMENTATION_GUIDE.md)** | Step-by-step VS Code runbook: setup, run, verify, troubleshoot |
-| **[Combined PDF](docs/Weather_ETL_Pipeline_Case_Study.pdf)** | Both documents as a single 22-page report |
+| **[Case Study PDF](docs/Weather_ETL_Case_Study.pdf)** | The case study on its own — 13 pages |
+| **[Combined PDF](docs/Weather_ETL_Pipeline_Case_Study.pdf)** | Case study + implementation guide — 22 pages |
 
 ---
 
